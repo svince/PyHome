@@ -1,22 +1,32 @@
 import sys
 import PyQt5
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QTimer
 import mainwindow_auto
 import urllib.request
 import json
+import time
 
 class MainWindow(QMainWindow, mainwindow_auto.Ui_MainWindow):
+
+    running_since = "Just started.."
 
     def __init__(self):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.updateBusTimes()
+        self.running_since = str(time.ctime())
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.updateBusTimes)
+        self.timer.start(5000)
 
     def updateBusTimes(self):
         times = getStationTimes("thuijastrasse", 5)
         text = ""
-        for time in times:
-            text += time[0] + " " + time[1] + " " + time[2] + "\n"
+        for t in times:
+            text += t[0] + " " + t[1] + " " + t[2] + "\n"
+        text += "\nUpdated at: " + str(time.ctime())
+        text += "\nRunning since: " + self.running_since
         self.label.setText(text)
 
 def getStationTimes(station_name, limit):
@@ -50,5 +60,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #test_sbb_access()
         
